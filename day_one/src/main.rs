@@ -4,6 +4,11 @@ use std::{
 };
 
 fn main() -> io::Result<()> {
+    Ok(())
+}
+
+#[allow(dead_code)]
+fn part_one() -> io::Result<u32> {
     let input = File::open("day_one/assets/input.txt")?;
 
     let depths: Vec<u32> = BufReader::new(input)
@@ -23,10 +28,5 @@ fn main() -> io::Result<()> {
                 }
             });
 
-    println!(
-        "Depths greater than previous: {}",
-        depths_greater_than_previous
-    );
-
-    Ok(())
+    Ok(depths_greater_than_previous)
 }
