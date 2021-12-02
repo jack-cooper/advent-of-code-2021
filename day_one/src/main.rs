@@ -3,6 +3,7 @@ use std::{
     io::{self, BufRead, BufReader},
 };
 
+// Answers for https://adventofcode.com/2021/day/1
 fn main() -> io::Result<()> {
     let input = File::open("day_one/assets/input.txt")?;
 
@@ -12,17 +13,20 @@ fn main() -> io::Result<()> {
         .flatten()
         .collect();
 
-    println!("Depths greater than previous: {}", part_one(&depths));
+    println!(
+        "Depths greater than previous: {}",
+        depths_greater_than_previous(&depths)
+    );
     println!(
         "Three measurement sliding window sums greater than previous: {}",
-        part_two(&depths)
+        sliding_windows_greater_than_previous(&depths)
     );
 
     Ok(())
 }
 
-#[allow(dead_code)]
-fn part_one(depths: &[u32]) -> u32 {
+// Part one
+fn depths_greater_than_previous(depths: &[u32]) -> u32 {
     depths
         .windows(2)
         .fold(0, |depths_greater_than_previous, depths| {
@@ -34,7 +38,8 @@ fn part_one(depths: &[u32]) -> u32 {
         })
 }
 
-fn part_two(depths: &[u32]) -> u32 {
+// Part two
+fn sliding_windows_greater_than_previous(depths: &[u32]) -> u32 {
     depths
         .windows(4)
         .skip(1)
