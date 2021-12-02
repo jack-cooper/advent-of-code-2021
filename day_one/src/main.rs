@@ -5,7 +5,7 @@ use std::{
 
 // Answers for https://adventofcode.com/2021/day/1
 fn main() -> io::Result<()> {
-    let input = File::open("day_one/assets/input.txt")?;
+    let input = File::open("assets/input.txt")?;
 
     let depths: Vec<u32> = BufReader::new(input)
         .lines()
