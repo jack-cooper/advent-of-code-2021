@@ -51,6 +51,11 @@ fn main() -> io::Result<()> {
         distance_depth_product(&instructions)
     );
 
+    println!(
+        "When accounting for aim, horizontal distance * depth = {}",
+        distance_depth_product_with_aim(&instructions)
+    );
+
     Ok(())
 }
 
@@ -68,6 +73,26 @@ fn distance_depth_product(instructions: &[Instruction]) -> u32 {
             DOWN => depth += instruction.magnitude,
             FORWARD => horizontal_distance += instruction.magnitude,
             UP => depth -= instruction.magnitude,
+            _ => panic!("Abort! Abort! Unrecognised instruction detected"),
+        }
+    }
+
+    horizontal_distance * depth
+}
+
+fn distance_depth_product_with_aim(instructions: &[Instruction]) -> u32 {
+    let mut aim = 0;
+    let mut horizontal_distance: u32 = 0;
+    let mut depth = 0;
+
+    for instruction in instructions {
+        match instruction.direction.as_str() {
+            DOWN => aim += instruction.magnitude,
+            FORWARD => {
+                horizontal_distance += instruction.magnitude;
+                depth += instruction.magnitude * aim;
+            }
+            UP => aim -= instruction.magnitude,
             _ => panic!("Abort! Abort! Unrecognised instruction detected"),
         }
     }
