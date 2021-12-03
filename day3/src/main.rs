@@ -8,30 +8,19 @@ use std::{
 fn main() -> io::Result<()> {
     let input = File::open("assets/input.txt")?;
 
-    let power_consumptions: Vec<u16> = BufReader::new(input)
+    let diagnostic_readings: Vec<u16> = BufReader::new(input)
         .lines()
-        .flat_map(|consumption| consumption.map(|consumption| u16::from_str_radix(&consumption, 2)))
+        .flat_map(|reading| reading.map(|reading| u16::from_str_radix(&reading, 2)))
         .flatten()
         .collect();
 
-    println!("{:?}", calculate_power_consumption(power_consumptions));
+    println!("{:?}", calculate_power_consumption(diagnostic_readings));
     Ok(())
 }
 
 // Part one - This is absolutely horrible code but I thought it'd be more in the spirit of the challenge to do a whole lot of bitwise operations
-fn calculate_power_consumption(power_consumptions: Vec<u16>) -> Result<u32, ParseIntError> {
-    let gamma_rate = power_consumptions
-        .iter()
-        .fold([0_i16; 12], |mut bit_counts, consumption| {
-            for (offset, bit_count) in bit_counts.iter_mut().enumerate() {
-                if (consumption & (1 << offset)) == 1 << offset {
-                    *bit_count += 1;
-                } else {
-                    *bit_count -= 1;
-                }
-            }
-            bit_counts
-        })
+fn calculate_power_consumption(diagnostic_readings: Vec<u16>) -> Result<u32, ParseIntError> {
+    let gamma_rate = calculate_bit_counts(&diagnostic_readings)
         .iter()
         .enumerate()
         .rev()
@@ -42,4 +31,23 @@ fn calculate_power_consumption(power_consumptions: Vec<u16>) -> Result<u32, Pars
     let epsilon_rate = !gamma_rate & 0b0000111111111111;
 
     Ok(gamma_rate as u32 * epsilon_rate as u32)
+}
+
+fn calculate_life_support_rating(diagnostic_readings: Vec<u16>) {
+    let bit_counts = calculate_bit_counts(&diagnostic_readings);
+}
+
+fn calculate_bit_counts(diagnostic_readings: &[u16]) -> [i16; 12] {
+    diagnostic_readings
+        .iter()
+        .fold([0_i16; 12], |mut bit_counts, reading| {
+            for (offset, bit_count) in bit_counts.iter_mut().enumerate() {
+                if (reading & (1 << offset)) == 1 << offset {
+                    *bit_count += 1;
+                } else {
+                    *bit_count -= 1;
+                }
+            }
+            bit_counts
+        })
 }
