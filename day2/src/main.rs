@@ -80,6 +80,7 @@ fn distance_depth_product(instructions: &[Instruction]) -> u32 {
     horizontal_distance * depth
 }
 
+// Part two
 fn distance_depth_product_with_aim(instructions: &[Instruction]) -> u32 {
     let mut aim = 0;
     let mut horizontal_distance: u32 = 0;
