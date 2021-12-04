@@ -14,8 +14,14 @@ fn main() -> io::Result<()> {
         .flatten()
         .collect();
 
-    println!("{:?}", calculate_power_consumption(&diagnostic_readings));
-    println!("{}", calcaulate_life_support_rating(&diagnostic_readings));
+    println!(
+        "Power consumption: {:?}",
+        calculate_power_consumption(&diagnostic_readings)
+    );
+    println!(
+        "Life Support Rating: {}",
+        calcaulate_life_support_rating(&diagnostic_readings)
+    );
     Ok(())
 }
 
@@ -62,23 +68,23 @@ fn calculate_life_support_subsection(
     offset: usize,
     subsection: LifeSupportSubsection,
 ) -> u16 {
-    let mut most_common_bits =
+    let most_common_bits =
         calculate_bit_counts(diagnostic_readings).map(|bit_count| match bit_count.signum() {
             0 | 1 => 1,
             -1 => 0,
             _ => panic!("signum is not behaving as expected"),
         });
 
-    most_common_bits.reverse();
-
     let filter_closure: Box<dyn Fn(&u16) -> bool> =
         if subsection == LifeSupportSubsection::OxygenGenerator {
             Box::new(|reading| {
-                (reading & (1 << (11 - offset))) >> (11 - offset) == most_common_bits[offset] as u16
+                (reading & (1 << (11 - offset))) >> (11 - offset)
+                    == most_common_bits[11 - offset] as u16
             })
         } else {
             Box::new(|reading| {
-                (reading & (1 << (11 - offset))) >> (11 - offset) != most_common_bits[offset] as u16
+                (reading & (1 << (11 - offset))) >> (11 - offset)
+                    != most_common_bits[11 - offset] as u16
             })
         };
 
@@ -87,8 +93,6 @@ fn calculate_life_support_subsection(
         .into_iter()
         .filter(filter_closure)
         .collect();
-
-    println!("Filtered length: {}", filtered_diagnostic_readings.len());
 
     if filtered_diagnostic_readings.len() == 1 {
         filtered_diagnostic_readings[0]
