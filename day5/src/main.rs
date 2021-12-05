@@ -1,6 +1,6 @@
-use std::{collections::HashMap, io, ops::RangeInclusive};
-
+use either::*;
 use itertools::iproduct;
+use std::{collections::HashMap, io, ops::RangeInclusive};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 struct UVec2(u16, u16);
@@ -20,14 +20,18 @@ impl UVec2 {
 }
 
 #[derive(Clone, Copy, Debug)]
-struct LineSegment(UVec2, UVec2);
+struct LineSegment {
+    start: UVec2,
+    end: UVec2,
+    is_diagonal: bool,
+}
 
 impl LineSegment {
-    pub fn new(start: UVec2, end: UVec2) -> Option<Self> {
-        if start.x() != end.x() && start.y() != end.y() {
-            None
-        } else {
-            Some(Self(start, end))
+    pub fn new(start: UVec2, end: UVec2) -> Self {
+        Self {
+            start,
+            end,
+            is_diagonal: start.x() != end.x() && start.y() != end.y(),
         }
     }
 
@@ -51,14 +55,28 @@ impl LineSegment {
     }
 
     pub fn end(&self) -> UVec2 {
-        self.1
+        self.end
+    }
+
+    pub fn is_diagonal(&self) -> bool {
+        self.is_diagonal
+    }
+
+    pub fn is_x_backwards(&self) -> bool {
+        self.start().x() > self.end().x()
+    }
+
+    pub fn is_y_backwards(&self) -> bool {
+        self.start().y() > self.end().y()
     }
 
     pub fn start(&self) -> UVec2 {
-        self.0
+        self.start
     }
 }
 
+// Solutions for day 5. This is a pretty flawed solution that I went for based on my original
+// assumption that Rust ranges were bi-directional.
 fn main() -> io::Result<()> {
     let input = std::fs::read_to_string("assets/input.txt")?;
 
@@ -72,17 +90,38 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-// Part one
+// Parts one and two
 fn find_dangerous_areas(line_segments: &[LineSegment]) -> Vec<UVec2> {
     let mut vent_positions: HashMap<UVec2, u8> = HashMap::new();
 
     for line_segment in line_segments {
         let (x_range, y_range) = line_segment.active_coordinates();
-        dbg!(x_range.clone(), y_range.clone());
 
-        for (x, y) in iproduct!(x_range, y_range) {
-            let vent_count = vent_positions.entry(UVec2::new(x, y)).or_insert(0);
-            *vent_count += 1;
+        let x_range = if line_segment.is_x_backwards() {
+            Left(x_range.rev())
+        } else {
+            Right(x_range)
+        };
+
+        let y_range = if line_segment.is_y_backwards() {
+            Left(y_range.rev())
+        } else {
+            Right(y_range)
+        };
+
+        if line_segment.is_diagonal() {
+            for (x, y) in x_range.zip(y_range) {
+                let vent_count = vent_positions.entry(UVec2::new(x, y)).or_insert(0);
+                *vent_count += 1;
+            }
+        } else {
+            for (x, y) in iproduct!(x_range, y_range) {
+                if line_segment.start() == UVec2::new(800, 61) {
+                    println!("x: {}, y: {}", x, y);
+                }
+                let vent_count = vent_positions.entry(UVec2::new(x, y)).or_insert(0);
+                *vent_count += 1;
+            }
         }
     }
 
@@ -109,7 +148,7 @@ fn parse_line_segments(input: &str) -> Vec<LineSegment> {
         })
         .flat_map(|positions| {
             if positions.len() == 2 {
-                LineSegment::new(positions[0], positions[1])
+                Some(LineSegment::new(positions[0], positions[1]))
             } else {
                 None
             }

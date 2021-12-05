@@ -22,8 +22,15 @@ version = "0.1.0"
 name = "day5"
 version = "0.1.0"
 dependencies = [
+ "either 0.1.7",
  "itertools",
 ]
+
+[[package]]
+name = "either"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a39bffec1e2015c5d8a6773cb0cf48d0d758c842398f624c34969071f5499ea7"
 
 [[package]]
 name = "either"
@@ -37,5 +44,5 @@ version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "69ddb889f9d0d08a67338271fa9b62996bc788c7796a5c18cf057420aaed5eaf"
 dependencies = [
- "either",
+ "either 1.6.1",
 ]
