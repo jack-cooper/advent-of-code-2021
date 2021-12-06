@@ -3,13 +3,14 @@ fn main() -> std::io::Result<()> {
 
     let fishes: Vec<i8> = input.trim().split(',').flat_map(str::parse).collect();
 
-    dbg!(fish_after_days(80, fishes).len());
+    dbg!(fish_after_80_days(fishes));
 
     Ok(())
 }
 
-fn fish_after_days(days: u8, mut fishes: Vec<i8>) -> Vec<i8> {
-    for _ in 0..days {
+// Part one
+fn fish_after_80_days(mut fishes: Vec<i8>) -> usize {
+    for _ in 0..80 {
         let mut births: usize = 0;
 
         for fish in fishes.iter_mut() {
@@ -26,5 +27,5 @@ fn fish_after_days(days: u8, mut fishes: Vec<i8>) -> Vec<i8> {
         fishes.append(&mut vec![8_i8; births])
     }
 
-    fishes
+    fishes.len()
 }
