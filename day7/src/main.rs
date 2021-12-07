@@ -26,6 +26,9 @@ fn main() -> std::io::Result<()> {
 fn calculate_cumulative_distance_to_target(target: i32, positions: &[i32]) -> i32 {
     positions
         .iter()
-        .map(|position| (position - target).abs())
+        .map(|position| {
+            let distance = (position - target).abs();
+            distance * (distance + 1) / 2
+        })
         .sum()
 }
