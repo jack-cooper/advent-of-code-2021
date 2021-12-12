@@ -20,7 +20,7 @@ fn main() -> std::io::Result<()> {
         })
         .collect();
 
-    autocomplete_scores.sort();
+    autocomplete_scores.sort_unstable();
 
     dbg!(autocomplete_scores[autocomplete_scores.len() / 2]);
 
@@ -47,7 +47,7 @@ fn get_bracket_score(bracket: char) -> u64 {
     }
 }
 
-fn get_characters_to_complete_line<'a>(chars: Chars<'a>) -> impl Iterator<Item = char> + 'a {
+fn get_characters_to_complete_line(chars: Chars) -> impl Iterator<Item = char> {
     let mut opening_bracket_stack: Vec<char> = Vec::new();
 
     for char in chars {
@@ -58,7 +58,10 @@ fn get_characters_to_complete_line<'a>(chars: Chars<'a>) -> impl Iterator<Item =
         }
     }
 
-    opening_bracket_stack.into_iter().map(get_closing_bracket)
+    opening_bracket_stack
+        .into_iter()
+        .map(get_closing_bracket)
+        .rev()
 }
 
 fn get_closing_bracket(opening_bracket: char) -> char {
@@ -93,14 +96,14 @@ fn get_first_illegal_character(chars: &Chars) -> Option<char> {
 }
 
 // Part one
-fn get_illegal_brackets<'a>(input: &'a str) -> impl Iterator<Item = char> + 'a {
+fn get_illegal_brackets(input: &str) -> impl Iterator<Item = char> + '_ {
     input
         .lines()
         .map(str::chars)
         .flat_map(|chars| get_first_illegal_character(&chars))
 }
 
-fn get_incomplete_lines<'a>(input: &'a str) -> impl Iterator<Item = Chars> + 'a {
+fn get_incomplete_lines(input: &str) -> impl Iterator<Item = Chars> {
     input
         .lines()
         .map(str::chars)
@@ -108,8 +111,5 @@ fn get_incomplete_lines<'a>(input: &'a str) -> impl Iterator<Item = Chars> + 'a 
 }
 
 fn is_opening_bracket(char: char) -> bool {
-    match char {
-        '(' | '[' | '{' | '<' => true,
-        _ => false,
-    }
+    matches!(char, '(' | '[' | '{' | '<')
 }
