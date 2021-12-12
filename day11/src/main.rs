@@ -15,6 +15,16 @@ fn main() -> std::io::Result<()> {
 
     dbg!(total_flashes);
 
+    let mut octopi: Vec<u32> = input
+        .lines()
+        .flat_map(str::chars)
+        .flat_map(|digit| digit.to_digit(10))
+        .collect();
+
+    let steps_until_synced = simulate_until_synchronised(&mut octopi);
+
+    dbg!(steps_until_synced);
+
     Ok(())
 }
 
@@ -101,4 +111,50 @@ fn simulate_steps(steps: u16, octopi: &mut [u32]) -> u32 {
     }
 
     total_flashes
+}
+
+fn simulate_until_synchronised(octopi: &mut [u32]) -> u32 {
+    let mut steps = 0;
+
+    'steps: loop {
+        steps += 1;
+
+        let mut flashed_octopus_indices: HashSet<usize> = HashSet::with_capacity(GRID_SIZE.pow(2));
+        let mut flashing_octopus_indices: Vec<usize> = Vec::with_capacity(GRID_SIZE.pow(2));
+
+        for (index, octopus) in octopi.iter_mut().enumerate() {
+            *octopus += 1;
+
+            if *octopus == 10 {
+                flashing_octopus_indices.push(index);
+            }
+        }
+
+        while !flashing_octopus_indices.is_empty() {
+            let mut new_flashing_octopus_indices: Vec<usize> = Vec::with_capacity(GRID_SIZE.pow(2));
+
+            for &index in &flashing_octopus_indices {
+                flashed_octopus_indices.insert(index);
+
+                for adjacent_index in get_adjacent_indices(index) {
+                    octopi[adjacent_index] += 1;
+
+                    if octopi[adjacent_index] == 10 {
+                        new_flashing_octopus_indices.push(adjacent_index);
+                    }
+                }
+            }
+
+            if flashed_octopus_indices.len() == GRID_SIZE.pow(2) {
+                break 'steps steps;
+            }
+            flashing_octopus_indices = new_flashing_octopus_indices;
+
+            flashing_octopus_indices.retain(|index| !flashed_octopus_indices.contains(index));
+        }
+
+        for &index in &flashed_octopus_indices {
+            octopi[index] = 0;
+        }
+    }
 }
