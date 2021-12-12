@@ -36,9 +36,7 @@ fn main() -> std::io::Result<()> {
             largest_basins
         });
 
-    let largest_basin_size_product = largest_basins
-        .iter()
-        .fold(1, |size_product, &basin_size| size_product * basin_size);
+    let largest_basin_size_product: usize = largest_basins.iter().product();
 
     dbg!(total_risk_level);
     dbg!(largest_basin_size_product);
@@ -84,7 +82,7 @@ fn get_low_points(heightmap: &[u32]) -> HashMap<usize, u32> {
         .iter()
         .enumerate()
         .filter(|&(index, height)| {
-            get_adjacent_locations(index, &heightmap)
+            get_adjacent_locations(index, heightmap)
                 .iter()
                 .all(|(_, adjacent_height)| adjacent_height > height)
         })
@@ -100,11 +98,11 @@ fn get_basin_size(low_point: (&usize, &u32), heightmap: &[u32]) -> usize {
     let mut locations_to_visit: HashMap<usize, u32> =
         get_adjacent_locations(current_location.0, heightmap);
 
-    while locations_to_visit.len() > 0 {
+    while locations_to_visit.is_empty() {
         locations_to_visit
             .retain(|index, &mut height| !indices_visited.contains(index) && height != 9);
 
-        if let Some(new_location) = locations_to_visit.iter().nth(0) {
+        if let Some(new_location) = locations_to_visit.iter().next() {
             current_location = (*new_location.0, *new_location.1);
 
             indices_visited.push(current_location.0);

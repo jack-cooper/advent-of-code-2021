@@ -66,7 +66,7 @@ fn output_to_digits(output: String) -> usize {
         .split_whitespace()
         .map(|digit| {
             let mut digit_chars: Vec<char> = digit.chars().collect();
-            digit_chars.sort();
+            digit_chars.sort_unstable();
             digit_chars.iter().collect::<String>()
         })
         .flat_map(|digit| character_digit_mapping.get(&digit[..]))
